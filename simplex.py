@@ -49,16 +49,14 @@ def find_c_negative(matrix):
 	for index in range(begin_A_columns, end_A_columns):
 		if matrix[0,index] < 0:
 			return index
-	return (-1)
+	return None
 
 def find_b_negative(matrix):
-
-	column_B = matrix.shape[1]-1 #ultima coluna da matriz
-	matrix_lines = matrix.shape[0]+1
+	matrix_lines = matrix.shape[0]
 	for index in range(1,matrix_lines):
-		if matrix[column_B,index] < 0:
+		if matrix[index,-1] < 0:
 			return index
-	return (-1)
+	return None
 
 def find_pivot_primal_simplex(matrix,c_index): #TRATAR O CASO EM QUE O MENOS INDICE È ZERO - REGRA DE BLAND
 	min_value = math.inf
@@ -77,22 +75,23 @@ def find_pivot_primal_simplex(matrix,c_index): #TRATAR O CASO EM QUE O MENOS IND
 
 
 def find_pivot_dual_simplex(matrix,b_index):
+	set_trace()
 	min_value = math.inf
 	min_index = None
 
 	begin_A_columns = matrix.shape[0] -1
-	end_A_columns = matrix.shape[1]
 
-	for index in range(begin_A_columns,end_A_columns):
+
+	for index in range(begin_A_columns,matrix.shape[1]-1):
 		if matrix[b_index, index] >= 0:
 			continue
 
-		curr_value = matrix[0,index] / matrix[b_index,index]
+		curr_value = matrix[0,index] / (-matrix[b_index,index])
 		if curr_value < min_value:
 			min_value = curr_value
 			min_index = index
 
-	return min_index # em caso de none, tratar PL ilimitada se c for menor que zero. C = 0, ainda nao define estado de ilimitada
+	return min_index 
 
 def pivoting(matrix,line_index, column_index):
 	for index in range(0,matrix.shape[0]):
@@ -104,23 +103,49 @@ def pivoting(matrix,line_index, column_index):
 	print("\nPivoteamento:("+str(line_index)+","+str(column_index)+")\n")
 	print (matrix)
 
-def verify_state(matrix):	
+def verify_state_primal(matrix):	
 	begin_C_columns = matrix.shape[0]-1
 	end_C_columns = matrix.shape[1]-1
 	if (all( i >=0 for i in matrix[0,begin_C_columns:end_C_columns]) ) and (all(i >=0 for i in matrix[1:,-1]) ):
 		return True
-	elif (all( i <=0 for i in matrix[0,begin_C_columns:end_C_columns]) ):
+	elif (all( i >=0 for i in matrix[0,begin_C_columns:end_C_columns]) ):
 		return None #passar para simplex dual
 	else:
 		return False #continua simplex primal
 
+def verify_state_dual(matrix):	
+	print(matrix)
+	begin_C_columns = matrix.shape[0]-1
+	end_C_columns = matrix.shape[1]-1
+	print(begin_C_columns)
+	print(end_C_columns)
+	c_negative_in_PL = all( i >=0 for i in matrix[0,begin_C_columns:end_C_columns])
+	b_positive = all(i >=0 for i in matrix[1:matrix.shape[0]-1,-1])
+	print('c_negative_in_PL -> '+str(c_negative_in_PL))
+	print('b_positive ->'+str(b_positive))
+	if ( c_negative_in_PL ) and ( b_positive ):
+		return True
+	elif ( c_negative_in_PL ):
+		return False #continua simplex dual
+	else:
+		return None #passar para simplex primal, teoricamente
+
+def unlimited_certificate(matrix):
+	pass
+
 def primal_simplex(matrix):
-	#set_trace()
-	c_index = find_c_negative(matrix) #tratar caso (-1) - nao tem c negativo
-	line_index =  find_pivot_primal_simplex(matrix,c_index)
-	pivoting(matrix,line_index,c_index)
-	state = verify_state(matrix)
-	if(state):
+	c_index = find_c_negative(matrix) 
+	if (c_index is not None): #ainda temos entradas de (-c) no tableux negativas
+		line_index =  find_pivot_primal_simplex(matrix,c_index)
+		if (line_index is not None): #temos, na coluna c_index escolhida, valores de A maiores que zero
+			pivoting(matrix,line_index,c_index)
+		elif (matrix[0:c_index] < 0 ): #situação de pl ilimitada
+			x = unlimited_certificate(matrix)
+		else:
+			raise "Deu merda - escolhi c_index = 0, com uma coluna toda menos ou igual a zero"
+
+	state = verify_state_primal(matrix)
+	if(state): #situacao de ótimo
 		return
 	elif(state is None):
 		#executar simples dual
@@ -128,30 +153,73 @@ def primal_simplex(matrix):
 	else:
 		primal_simplex(matrix)
 
+def dual_simplex(matrix):
+	b_index = find_b_negative(matrix)
+	if(b_index is not None): #ainda temos entradas de b no tableaux que são negativas
+		column_index = find_pivot_dual_simplex(matrix,b_index)
+		if(column_index is not None):#temos, na linha b_index, valores de A negativos
+			pivoting(matrix,b_index,column_index)
+		else: #situação de PL inviável - A da linha positivo com B da linha negativo e X>=0
+			pass
+	state = verify_state_dual(matrix)
+	if(state): #situacao de ótimo
+		return
+	elif(state is None):
+		#executar simples primal
+		pass	
+	else: #False
+		dual_simplex(matrix)
+
+def verify_method(matrix):
+	begin_C_columns = matrix.shape[0]-1
+	end_C_columns = matrix.shape[1]-1
+	if (all( i >=0 for i in matrix[0,begin_C_columns:end_C_columns])) and (all(i >=0 for i in matrix[1:,-1]) ):
+		return 0
+	elif (all( i <=0 for i in matrix[0,begin_C_columns:end_C_columns]) ) and (not (all(i >=0 for i in matrix[1:,-1]))) :
+		return 1 #passar para simplex dual
+	elif (all( i >=0 for i in matrix[0,begin_C_columns:end_C_columns]) ):
+		return 2 #continua PL Auxiliar
+
 
 def main():
+
+#TENTAR SEMPRE DUAL PRIMEIRO, DEPOIS PRIMAL E DEPOIS PL AUXILIAR 
 
 #f = open('teste1.txt', 'r')
 
 #linhas 	= 4  #f.readline()
 #colunas = 7#f.readline()
 
-	matrix = np.array([[3,2,4,0],[1,1,2,4],[2,0,3,5],[2,1,3,7]],dtype=float)
+	#exemplo simplex primal
+	#matrix = np.array([[3,2,4,0],[1,1,2,4],[2,0,3,5],[2,1,3,7]],dtype=float)
+
+	#exemplo simplex dual
+
+	matrix = np.array([[-4,-8,-9,0],[2,-1,5,1],[3,-4,1,3],[-1,0,-2,-8]],dtype=float)
 
 	print("\nMatriz inicial:\n")
 	print(matrix)
 	matrix = parse_to_fpi(matrix)
-	print(matrix)
-	matrix = put_tableux_form(matrix)
-	print(matrix)
-	#primal_simplex(matrix)
 
-	#primal_simplex(matrix)
-#	print("\nMatriz final: \n")
-#	put_pl_form(matrix)#mudar o formato para que o valor objetivo nao fique negativo na hora errada
-#	print(matrix)
+	method = verify_method(matrix)
+	if(method == 0):
 
-
-# identidade = np.identity(2,float)
-
+		print("simplex primal")
+		matrix = put_tableux_form(matrix)
+		primal_simplex(matrix)
+		put_pl_form(matrix)
+		#simplex_primal
+		pass
+	elif(method==1):
+		print("simplex dual")
+		matrix = put_tableux_form(matrix)
+		dual_simplex(matrix)
+		put_pl_form(matrix)
+		#simplex_dual
+		pass
+	else:
+		print("pl auxiliar")
+		#pl auxiliar
+		pass
+	print('final')
 main()
