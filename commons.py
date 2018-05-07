@@ -1,8 +1,9 @@
 import numpy as np
 
 
-def put_identity_matrix(matrix, position, size):
+def put_identity_matrix(matrix, position, size,value):
 	adicional_row = np.zeros(size)
+	adicional_row = adicional_row+value
 	identity = np.identity(size)
 	sub_matrix = np.insert(identity, 0, adicional_row, axis=0)
 
@@ -14,11 +15,11 @@ def put_identity_matrix(matrix, position, size):
 
 def parse_to_fpi(matrix):
 	matrix_A_lines = (matrix.shape[0]-1)
-	return put_identity_matrix(matrix,matrix_A_lines,matrix_A_lines)
+	return put_identity_matrix(matrix,matrix_A_lines,matrix_A_lines,0)
 
 def put_tableux_form(matrix):
 	matrix_A_lines = (matrix.shape[0]-1)
-	matrix = put_identity_matrix(matrix,0,matrix_A_lines)
+	matrix = put_identity_matrix(matrix,0,matrix_A_lines,0)
 	matrix[0,:] = (-1)*matrix[0,:] 
 	return matrix
 
@@ -34,19 +35,46 @@ def pivoting(matrix, line_index, column_index):
 		else:
 			matrix[index,:] = matrix[line_index,:]*( (-matrix[index,column_index])/matrix[line_index,column_index])+matrix[index,:]	
 	
-	print("\nPivoteamento:("+str(line_index)+","+str(column_index)+")\n")
-	print (matrix)
+	f = open('primeiro.txt', 'r')
+	conteudo = f.readlines()
 
-def canonical_form(matrix):
-	if(not verify_canonical_form(matrix)):
-		put_canonical_form(matrix)
+	conteudo.append(str(matrix.tolist()))
+	f = open('primeiro.txt', 'w')
+	f.writelines(conteudo)
+	f.close()
 
-def verify_canonical_form(matrix):
+def canonical_form(matrix,base_columns):
+	if(not verify_canonical_form(matrix,base_columns)):
+		put_canonical_form(matrix,base_columns)
+
+def verify_canonical_form(matrix,base_columns):
 	pl_canonical_form = False; 
-	#verifica se está em forma canonica
+
+	begin_A_columns = matrix.shape[0]-1
+	for index in range(begin_A_columns,matrix.shape[1]):
+		count_ones = 0
+		base = None
+		if (matrix[0,index] == 0):
+			for line in range(1,matrix.shape[0]):				
+				if(matrix[line,index] == 1):
+					count_ones+=1
+					base = line
+				elif(matrix[line,index] == 0):
+					continue
+				else:
+					base = None
+					break
+		if(base is not None and count_ones == 1):
+			base_columns[base] = index #para a base da linha 'base', meu pivo encontra-se na coluna base_columns[base]
+
+	if(all( i >0 for i in base_columns)):
+		return True
+	else:
+		return False
+		#verifica se está em forma canonica
 	
 	return pl_canonical_form;
 
-def put_canonical_form(matrix):
+def put_canonical_form(matrix,base_columns):
 	#coloca em forma canonica
 	pass

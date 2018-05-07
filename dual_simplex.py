@@ -2,7 +2,65 @@ import numpy as np
 from pdb import set_trace
 import math
 
-from commons import pivoting, put_tableux_form, put_pl_form, parse_to_fpi
+from commons import pivoting, put_tableux_form, put_pl_form, parse_to_fpi,canonical_form
+
+
+def print_optimal_situation(matrix,base_columns):
+
+	
+	#calcula solução 
+	begin_A_columns = matrix.shape[0]-1
+	solution = np.zeros(matrix.shape[1] - (begin_A_columns+1))
+	for index in range(1,len(base_columns)): #percorre quantidade de linhas 
+		solution[(int(base_columns[index])-begin_A_columns)] = matrix[index,matrix.shape[1]-1]
+
+	conteudo = []
+	conteudo.append("2"+'\n')
+	conteudo.append(str(solution)+'\n')
+	conteudo.append(str((matrix[0,-1]).tolist())+'\n')
+	conteudo.append(str((matrix[0,0:(matrix.shape[0]-1)]).tolist()))
+	f = open('conclusao.txt', 'w')
+	f.writelines(conteudo)
+	f.close()
+
+	#print("2")
+	#print(solution)
+	#print(matrix[0,-1])
+	#print((matrix[0,0:(matrix.shape[0]-1)]).tolist())
+
+def non_viability_certificate(matrix,base_columns):
+	
+	conteudo = []
+	conteudo.append("0"+'\n')
+	conteudo.append(str((matrix[0,0:(matrix.shape[0]-1)]).tolist()))
+	f = open('conclusao.txt', 'w')
+	f.writelines(conteudo)
+	f.close()
+	#print("0")
+	#print((matrix[0,0:(matrix.shape[0]-1)]).tolist())
+
+
+def dual_simplex(matrix,base_columns):
+	inviability = 0
+	b_index = find_b_negative(matrix)
+	if(b_index is not None): #ainda temos entradas de b no tableaux que são negativas
+		column_index = find_pivot_dual_simplex(matrix,b_index)
+		if(column_index is not None):#temos, na linha b_index, valores de A negativos
+			pivoting(matrix,b_index,column_index)
+			base_columns[b_index] = column_index
+		else: #situação de PL inviável - A da linha positivo com B da linha negativo e X>=0
+			inviability = 1
+			non_viability_certificate(matrix,base_columns)
+	if(inviability != 1):
+		state = verify_state_dual(matrix)
+		if(state): #situacao de ótimo
+			print_optimal_situation(matrix,base_columns)
+			return
+		elif(state is None):
+			#executar simples primal
+			pass	
+		else: #False
+			dual_simplex(matrix,base_columns)
 
 def find_b_negative(matrix):
 	matrix_lines = matrix.shape[0]
@@ -30,15 +88,10 @@ def find_pivot_dual_simplex(matrix,b_index):
 	return min_index
 
 def verify_state_dual(matrix):	
-	print(matrix)
 	begin_C_columns = matrix.shape[0]-1
 	end_C_columns = matrix.shape[1]-1
-	print(begin_C_columns)
-	print(end_C_columns)
 	c_negative_in_PL = all( i >=0 for i in matrix[0,begin_C_columns:end_C_columns])
 	b_positive = all(i >=0 for i in matrix[1:matrix.shape[0]-1,-1])
-	print('c_negative_in_PL -> '+str(c_negative_in_PL))
-	print('b_positive ->'+str(b_positive))
 	if ( c_negative_in_PL ) and ( b_positive ):
 		return True
 	elif ( c_negative_in_PL ):
@@ -46,28 +99,14 @@ def verify_state_dual(matrix):
 	else:
 		return None #passar para simplex primal, teoricamente
 
-def dual_simplex(matrix):
-	b_index = find_b_negative(matrix)
-	if(b_index is not None): #ainda temos entradas de b no tableaux que são negativas
-		column_index = find_pivot_dual_simplex(matrix,b_index)
-		if(column_index is not None):#temos, na linha b_index, valores de A negativos
-			pivoting(matrix,b_index,column_index)
-		else: #situação de PL inviável - A da linha positivo com B da linha negativo e X>=0
-			pass
-	state = verify_state_dual(matrix)
-	if(state): #situacao de ótimo
-		return
-	elif(state is None):
-		#executar simples primal
-		pass	
-	else: #False
-		dual_simplex(matrix)
+
 
 
 def solve(matrix):
+
 	print("Solving dual simplex.")
 	matrix = parse_to_fpi(matrix)
 	matrix = put_tableux_form(matrix)
-
-	dual_simplex(matrix)
-	put_pl_form(matrix)
+	base_columns = np.zeros(matrix.shape[0])
+	canonical_form(matrix,base_columns)
+	dual_simplex(matrix,base_columns)
