@@ -14,12 +14,12 @@ def put_identity_matrix(matrix, position, size,value):
 	return np.array(arrays_list)
 
 def parse_to_fpi(matrix):
-	matrix_A_lines = (matrix.shape[0]-1)
-	return put_identity_matrix(matrix,matrix_A_lines,matrix_A_lines,0)
+	matrix_A_lines = (matrix.shape[0])
+	return put_identity_matrix(matrix,matrix_A_lines,matrix_A_lines-1,0)
 
 def put_tableux_form(matrix):
 	matrix_A_lines = (matrix.shape[0]-1)
-	#matrix = put_identity_matrix(matrix,0,matrix_A_lines,0)
+	matrix = put_identity_matrix(matrix,0,matrix_A_lines,0)
 	matrix[0,:] = (-1)*matrix[0,:] 
 	return matrix
 
@@ -34,7 +34,8 @@ def pivoting(matrix, line_index, column_index):
 			matrix[index,:] = matrix[index,:]/matrix[line_index,column_index]
 		else:
 			matrix[index,:] = matrix[line_index,:]*( (-matrix[index,column_index])/matrix[line_index,column_index])+matrix[index,:]	
-	
+	print("pivoting")
+	print(matrix)
 	f = open('primeiro.txt', 'r')
 	conteudo = f.readlines()
 
@@ -77,14 +78,10 @@ def verify_canonical_form(matrix,base_columns):
 
 def put_canonical_form(matrix,base_columns):
 
-	begin_identity_columns = matrix.shape[1]-matrix.shape[0]
-	print(begin_identity_columns)
 	end_identity_columns = matrix.shape[1]-1
-	print(end_identity_columns)
-	linha_base = 1
-	for coluna in range(begin_identity_columns,end_identity_columns):
-	#para cada coluna, pivoteia 
-		base_columns[linha_base] = coluna
-		matrix[0,:] = matrix[0,:] - matrix[linha_base,:]
-		linha_base = linha_base+1
+
+
+	for linha in range(1 , base_columns.shape[0]):
+	#para cada linha, pivoteia a coluna 
+		matrix[0,:] = matrix[linha,:]*( (-matrix[0,int(base_columns[linha])])/matrix[linha,int(base_columns[linha])])+matrix[0,:]	
 	return matrix
