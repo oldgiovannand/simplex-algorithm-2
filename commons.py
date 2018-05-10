@@ -19,7 +19,7 @@ def parse_to_fpi(matrix):
 
 def put_tableux_form(matrix):
 	matrix_A_lines = (matrix.shape[0]-1)
-	matrix = put_identity_matrix(matrix,0,matrix_A_lines,0)
+	#matrix = put_identity_matrix(matrix,0,matrix_A_lines,0)
 	matrix[0,:] = (-1)*matrix[0,:] 
 	return matrix
 
@@ -76,5 +76,15 @@ def verify_canonical_form(matrix,base_columns):
 	return pl_canonical_form;
 
 def put_canonical_form(matrix,base_columns):
-	#coloca em forma canonica
-	pass
+
+	begin_identity_columns = matrix.shape[1]-matrix.shape[0]
+	print(begin_identity_columns)
+	end_identity_columns = matrix.shape[1]-1
+	print(end_identity_columns)
+	linha_base = 1
+	for coluna in range(begin_identity_columns,end_identity_columns):
+	#para cada coluna, pivoteia 
+		base_columns[linha_base] = coluna
+		matrix[0,:] = matrix[0,:] - matrix[linha_base,:]
+		linha_base = linha_base+1
+	return matrix

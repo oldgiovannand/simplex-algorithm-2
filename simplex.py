@@ -30,10 +30,10 @@ def main():
 	#matrix = np.array([[3,2,4,0],[1,1,2,4],[2,0,3,5],[2,1,3,7]],dtype=float)
 
 	#exemplo simplex dual
-	matrix = np.array([[-4,-8,-9,0],[2,-1,5,1],[3,-4,1,3],[-1,0,-2,-8]],dtype=float)
+	#matrix = np.array([[-4,-8,-9,0],[2,-1,5,1],[3,-4,1,3],[-1,0,-2,-8]],dtype=float)
 	
 	#exemplo PL AUXILIAR
-	#matrix = np.array([[4,8,9,0],[2,-1,5,1],[3,-4,1,3],[1,0,2,-8]],dtype=float)
+	matrix = np.array([[4,8,9,0],[2,-1,5,1],[3,-4,1,3],[1,0,2,-8]],dtype=float)
 
 	#exemplo ilimitada
 	#matrix = np.array([[1,3,-1,0],[2,2,-1,10],[3,-2,1,10],[1,-3,1,10]],dtype = float)
