@@ -4,6 +4,7 @@ import math
 
 from commons import pivoting, put_tableux_form, put_pl_form, parse_to_fpi,put_identity_matrix,put_canonical_form
 from primal_simplex import verify_state_primal,find_c_negative,find_pivot_primal_simplex
+from primal_simplex import primal_simplex as solve_primal_simplex  
 
 def transform_b_positive(matrix):
 	for index in range(1,(matrix.shape[0])):
@@ -27,9 +28,9 @@ def prepare_for_primal_simplex(matrix,original_matrix,base_columns):
 	original_matrix = parse_to_fpi(original_matrix)
 	print(original_matrix)
 
-	print("matriz identidade")
-	original_matrix = put_identity_matrix(original_matrix,original_matrix.shape[1]-1,original_matrix.shape[0]-1,0)
-	print(original_matrix)
+	#print("matriz identidade")
+	#original_matrix = put_identity_matrix(original_matrix,original_matrix.shape[1]-1,original_matrix.shape[0]-1,0)
+	#print(original_matrix)
 
 	print("forma de tableux")	
 	original_matrix = put_tableux_form(original_matrix)
@@ -40,24 +41,24 @@ def prepare_for_primal_simplex(matrix,original_matrix,base_columns):
 	print(base_columns)
 
 	original_matrix = put_canonical_form(original_matrix,base_columns)
-	print(matrix)
-	print(jhdbjhadb)
-	#colocar a matrix na nova base
-	#executar simplex primal 
-	pass#a primal tem otimo e a matriz de operacoes
-
+	print(original_matrix)
+	#executar simplex primal
+	#set_trace() 
+	solve_primal_simplex(original_matrix,base_columns)
 
 def primal_simplex_auxiliar_pl(matrix,base_columns,original_matrix):
+	#set_trace()
 	c_index = find_c_negative(matrix) 
 	ilimit = 0
 	if (c_index is not None): #ainda temos entradas de (-c) no tableux negativas
 		line_index =  find_pivot_primal_simplex(matrix,c_index)
 		if (line_index is not None): #temos, na coluna c_index escolhida, valores de A maiores que zero
+			
 			pivoting(matrix,line_index,c_index)
 			base_columns[line_index] = c_index
 		elif(matrix[0,c_index] < 0 ): #situação de pl ilimitada
 			pass
-			#ilimit = 1
+			ilimit = 1
 			#unlimited_certificate(matrix,c_index,base_columns)
 		else:
 			raise "Deu merda - escolhi c_index = 0, com uma coluna toda menor ou igual a zero"
@@ -92,9 +93,7 @@ def solve(matrix):
 	print("VETOR C ZERADO")
 	matrix = zero_vector_b(matrix)
 	print(matrix)
-	print("matriz identidade")
-	matrix = put_identity_matrix(matrix,matrix.shape[1]-1,matrix.shape[0]-1,-1)
-	print(matrix)
+
 	print("forma de tableux")
 	matrix = put_tableux_form(matrix)
 	print(matrix)
@@ -103,12 +102,20 @@ def solve(matrix):
 	matrix = transform_b_positive(matrix)
 	print(matrix)
 
+
+	print("matriz identidade")
+	matrix = put_identity_matrix(matrix,matrix.shape[1]-1,matrix.shape[0]-1,1)
+	print(matrix)
+
 	print("forma canonica")
 
 	end_c = matrix.shape[1]-matrix.shape[0]
 	for index in range(1,(matrix.shape[0])):
-		base_columns[index] =end_c
+		base_columns[index] = end_c
 		end_c = end_c+1;
+
+
 	matrix = put_canonical_form(matrix,base_columns)
 	print(matrix)
 	primal_simplex_auxiliar_pl(matrix,base_columns,original_matrix)
+	print("olar")

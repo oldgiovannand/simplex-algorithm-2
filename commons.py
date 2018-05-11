@@ -14,8 +14,9 @@ def put_identity_matrix(matrix, position, size,value):
 	return np.array(arrays_list)
 
 def parse_to_fpi(matrix):
-	matrix_A_lines = (matrix.shape[0])
-	return put_identity_matrix(matrix,matrix_A_lines,matrix_A_lines-1,0)
+	position = (matrix.shape[1])-1
+	size = matrix.shape[0]-1
+	return put_identity_matrix(matrix,position,size,0)
 
 def put_tableux_form(matrix):
 	matrix_A_lines = (matrix.shape[0]-1)
@@ -36,10 +37,23 @@ def pivoting(matrix, line_index, column_index):
 			matrix[index,:] = matrix[line_index,:]*( (-matrix[index,column_index])/matrix[line_index,column_index])+matrix[index,:]	
 	print("pivoting")
 	print(matrix)
+
+	# conteudo = []
+	# conteudo.append("2"+'\n')
+	# conteudo.append(str(solution)+'\n')
+	# conteudo.append(str((matrix[0,-1]).tolist())+'\n')
+	# conteudo.append(str((matrix[0,0:(matrix.shape[0]-1)]).tolist()))
+	# f = open('conclusao.txt', 'w')
+	# f.writelines(conteudo)
+	# f.close()
+
+
 	f = open('primeiro.txt', 'r')
 	conteudo = f.readlines()
-
-	conteudo.append(str(matrix.tolist()))
+	
+	for index in range(0,matrix.shape[0]):
+		conteudo.append(str(matrix[index,:].tolist())+"\n")
+	conteudo.append("\n\n")	
 	f = open('primeiro.txt', 'w')
 	f.writelines(conteudo)
 	f.close()

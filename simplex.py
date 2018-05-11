@@ -24,7 +24,7 @@ def main():
 	lines = int(f.readline()) + 1
 	columns = int(f.readline()) + 1 
 	matrix_str = f.readline()
-	#matrix = np.array(np.mat(matrix_str).reshape(lines,columns))
+	matrix = np.array(np.mat(matrix_str).reshape(lines,columns))
 
 	#exemplo simplex primal
 	#matrix = np.array([[3,2,4,0],[1,1,2,4],[2,0,3,5],[2,1,3,7]],dtype=float)
@@ -39,7 +39,7 @@ def main():
 	#matrix = np.array([[6,-5,1,0],[1,-3,7,-1],[-1,5,-10,1]],dtype=float)
 
 	#exemplo PL AUXILIAR viavel
-	matrix = np.array([[5,-2,1,-1,0],[1,4,1,-1,6],[-2,-1,-3,3,-2]],dtype=float)
+	#matrix = np.array([[5,-2,1,-1,0],[1,4,1,-1,6],[-2,-1,-3,3,-2]],dtype=float)
 
 
 	#exemplo ilimitada
