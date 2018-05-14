@@ -4,7 +4,7 @@ from decimal import Decimal
 
 from pdb import set_trace	
 
-def put_identity_matrix(matrix, position, size,value):
+def add_identity_matrix(matrix, position, size,value):
 	adicional_row = np.zeros(size)
 	adicional_row = adicional_row+value
 	identity = np.identity(size)
@@ -19,21 +19,16 @@ def put_identity_matrix(matrix, position, size,value):
 def parse_to_fpi(matrix):
 	position = (matrix.shape[1])-1
 	size = matrix.shape[0]-1
-	return put_identity_matrix(matrix,position,size,0)
+	return add_identity_matrix(matrix,position,size,0)
 
 def put_tableux_form(matrix):
 	matrix_A_lines = (matrix.shape[0]-1)
-	matrix = put_identity_matrix(matrix,0,matrix_A_lines,0)
-	matrix[0,:] = (-1)*matrix[0,:] 
+	matrix = add_identity_matrix(matrix,0,matrix_A_lines,0) # adds array of operations 
+	matrix[0,:] = (-1)*matrix[0,:] # Negative vector c
 	return matrix
 
-def put_pl_form(matrix):
-	begin_C_columns = matrix.shape[0]-1
-	end_C_columns = matrix.shape[1]-1
-	matrix[0,begin_C_columns:end_C_columns] = (-1)*matrix[0,begin_C_columns:end_C_columns] 
-
 def pivoting(matrix, line_index, column_index):
-	#set_trace()
+	
 	factor_line = (matrix[line_index,:]).copy()
 	for index in range(0,matrix.shape[0]):#linha
 		factor = Fraction( Fraction( (-matrix[index,column_index])),Fraction( (factor_line[column_index]))).limit_denominator(1000000)
@@ -75,7 +70,6 @@ def canonical_form(matrix,base_columns):
 		put_canonical_form(matrix,base_columns)
 
 def verify_canonical_form(matrix,base_columns):
-	pl_canonical_form = False
 
 	begin_A_columns = matrix.shape[0]-1
 	for index in range(begin_A_columns,matrix.shape[1]):
@@ -98,15 +92,10 @@ def verify_canonical_form(matrix,base_columns):
 		return True
 	else:
 		return False
-		#verifica se está em forma canonica
-	
-	return pl_canonical_form
 
 def put_canonical_form(matrix,base_columns):
 
 	#end_identity_columns = matrix.shape[1]-1
-
-
 	for linha in range(1 , base_columns.shape[0]):
 	#para cada linha, pivoteia a coluna 
 		matrix[0,:] = matrix[linha,:]*( (-matrix[0,int(base_columns[linha])])/matrix[linha,int(base_columns[linha])])+matrix[0,:]	

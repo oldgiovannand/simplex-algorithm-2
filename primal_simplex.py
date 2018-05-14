@@ -2,8 +2,10 @@ import numpy as np
 from pdb import set_trace
 import math
 
-from commons import pivoting, put_tableux_form, put_pl_form, parse_to_fpi,canonical_form
+from commons import pivoting, put_tableux_form, parse_to_fpi,canonical_form
+from printing_solutions import optimal_situation, unlimited_certificate
 
+# It uses the first negative input found as a heuristic
 def find_c_negative(matrix): 
 	begin_A_columns = matrix.shape[0]-1
 	end_A_columns = matrix.shape[1]
@@ -12,8 +14,8 @@ def find_c_negative(matrix):
 			return index
 	return None
 
-def find_pivot_primal_simplex(matrix,c_index): #TRATAR O CASO EM QUE O MENOS INDICE È ZERO - REGRA DE BLAND
-	min_value = 100000000
+def find_pivot_primal_simplex(matrix,c_index):
+	min_value = math.inf
 	min_index = None
 
 	for index in range(1, matrix.shape[0]):
@@ -25,95 +27,56 @@ def find_pivot_primal_simplex(matrix,c_index): #TRATAR O CASO EM QUE O MENOS IND
 			min_value = curr_value
 			min_index = index
 
-	return min_index # em caso de none, tratar PL ilimitada se c for menor que zero. C = 0, ainda nao define estado de ilimitada
+	return min_index 
 
-def verify_state_primal(matrix):	
+def verify_state_primal_simplex(matrix):	
 	begin_C_columns = matrix.shape[0]-1
 	end_C_columns = matrix.shape[1]-1
+
+	# Positive vectors C (in tableux) and B - (True) Optimal Situation  
+	# Vector C positive (in tableux) and B Non-positive - (1) Pass to Dual Simplex 
+	# Vectors C Non-positive (in tableux) - (False) Continue Primal Simplex
+
 	if (all( i >=0 for i in matrix[0,begin_C_columns:end_C_columns]) ) and (all(i >=0 for i in matrix[1:,-1]) ):
 		return True
 	elif (all( i >=0 for i in matrix[0,begin_C_columns:end_C_columns]) ):
-		return None #passar para simplex dual
+		return None
 	else:
-		return False #continua simplex primal
-
-def unlimited_certificate(matrix,c_index,base_columns):
-	begin_A_columns = matrix.shape[0]-1
-	certificate = np.zeros(matrix.shape[1] - (begin_A_columns+1))
-	for index in range(1,len(base_columns)): #percorre quantidade de linhas 
-		certificate[(int(base_columns[index])-begin_A_columns)] = -matrix[index,c_index]
-	certificate[c_index-begin_A_columns] = 1
-	
-	conteudo = []
-	conteudo.append("1"+'\n')
-	conteudo.append(str((certificate).tolist()))
-	f = open('conclusao.txt', 'w')
-	f.writelines(conteudo)
-	f.close()
-	print("1")
-	print(np.around( np.array(certificate,dtype=float), decimals=6)  )
-
-
-def print_optimal_situation(matrix,base_columns):
-	#calcula solução 
-	begin_A_columns = matrix.shape[0]-1
-	solution = (np.zeros(matrix.shape[1] - (begin_A_columns))).astype('object')
-	for index in range(1,len(base_columns)): #percorre quantidade de linhas 
-		solution[(int(base_columns[index])-begin_A_columns)] = matrix[index,matrix.shape[1]-1]
-	
-
-	print("2")
-	print(np.around(np.array(solution[0:-(matrix.shape[0])],dtype=float), decimals=5)   )
-	print( np.around(float(matrix[0,-1]) , decimals=5))
-	print(np.around( np.array(matrix[0,0:(matrix.shape[0]-1)],dtype=float), decimals=6)  )
-	#conteudo = []
-	#conteudo.append("2"+'\n')
-	#conteudo.append(str(solution)+'\n')
-	#conteudo.append(str((matrix[0,-1]).tolist())+'\n')
-	#conteudo.append(str((matrix[0,0:(matrix.shape[0]-1)]).tolist()))
-	#f = open('conclusao.txt', 'w')
-	#f.writelines(conteudo)
-	#f.close()
-
-	#print("2")
-	#print(solution)
-	#print(matrix[0,-1])
-	#print((matrix[0,0:(matrix.shape[0]-1)]).tolist())
+		return False 
 
 def primal_simplex(matrix,base_columns):
-	print(" iteracao")
-	print(matrix)
+
+	unlimited_control = False
 	c_index = find_c_negative(matrix) 
-	ilimit = 0
-	if (c_index is not None): #ainda temos entradas de (-c) no tableux negativas
-		line_index =  find_pivot_primal_simplex(matrix,c_index)
-		if (line_index is not None): #temos, na coluna c_index escolhida, valores de A maiores que zero
+	
+	if (c_index is not None): # We still have negative (-c) entries in tableaux
+		line_index =  find_pivot_primal_simplex(matrix,c_index) 
+
+		if (line_index is not None): # We have, in column c_index chosen, positive values in matrix A
 			pivoting(matrix,line_index,c_index)
 			base_columns[line_index] = c_index
-		elif(matrix[0,c_index] < 0 ): #situação de pl ilimitada
-			ilimit = 1
+		elif(matrix[0,c_index] < 0 ): # We haven't positive values in matrix A
+			unlimited_control = True
 			unlimited_certificate(matrix,c_index,base_columns)
 		else:
-			raise "Deu merda - escolhi c_index = 0, com uma coluna toda menos ou igual a zero"
-	if(ilimit != 1):
-		state = verify_state_primal(matrix)
-		if(state): #situacao de ótimo	
-			print_optimal_situation(matrix,base_columns) 
+			raise "Error - Choose c_index = 0, with an entire column less than or equal to zero"
+
+	if(not unlimited_control):
+		simplex_state = verify_state_primal_simplex(matrix)
+
+		if(simplex_state): 
+			optimal_situation(matrix,base_columns) 
 			return
-		elif(state is None):
-			#executar simples dual
+		elif(simplex_state is None):
+			# Do simple dual
 			pass	
-		else:
-			#set_trace()
+		else: 
 			primal_simplex(matrix,base_columns)
 
-
 def solve(matrix):
-	print("Solving primal simplex.")
 	matrix = parse_to_fpi(matrix)
 	matrix = put_tableux_form(matrix)
 	base_columns = np.zeros(matrix.shape[0])
 	canonical_form(matrix,base_columns)
 	primal_simplex(matrix,base_columns)
-	print("oi primal")
 	

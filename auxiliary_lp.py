@@ -2,8 +2,8 @@ import numpy as np
 from pdb import set_trace
 import math
 
-from commons import pivoting, put_tableux_form, put_pl_form, parse_to_fpi,put_identity_matrix,put_canonical_form
-from primal_simplex import verify_state_primal,find_c_negative,find_pivot_primal_simplex
+from commons import pivoting, put_tableux_form,  parse_to_fpi,add_identity_matrix,put_canonical_form
+from primal_simplex import verify_state_primal_simplex,find_c_negative,find_pivot_primal_simplex
 from primal_simplex import primal_simplex as solve_primal_simplex  
 
 def transform_b_positive(matrix):
@@ -28,7 +28,7 @@ def prepare_for_primal_simplex(matrix,original_matrix,base_columns):
 	print(original_matrix)
 
 	#print("matriz identidade")
-	#original_matrix = put_identity_matrix(original_matrix,original_matrix.shape[1]-1,original_matrix.shape[0]-1,0)
+	#original_matrix = add_identity_matrix(original_matrix,original_matrix.shape[1]-1,original_matrix.shape[0]-1,0)
 	#print(original_matrix)
 
 	print("forma de tableux")	
@@ -62,7 +62,7 @@ def primal_simplex_auxiliar_pl(matrix,base_columns,original_matrix):
 		else:
 			raise "Deu merda - escolhi c_index = 0, com uma coluna toda menor ou igual a zero"
 	if(ilimit != 1):
-		state = verify_state_primal(matrix)
+		state = verify_state_primal_simplex(matrix)
 		if(state): #situacao de ótimo	
 			if ( (matrix[0,-1]) == 0 ):
 				print("otimo")
@@ -104,7 +104,7 @@ def solve(matrix):
 
 
 	print("matriz identidade")
-	matrix = put_identity_matrix(matrix,matrix.shape[1]-1,matrix.shape[0]-1,1)
+	matrix = add_identity_matrix(matrix,matrix.shape[1]-1,matrix.shape[0]-1,1)
 	print(matrix)
 
 	print("forma canonica")
@@ -119,4 +119,3 @@ def solve(matrix):
 	print(matrix)
 	primal_simplex_auxiliar_pl(matrix,base_columns,original_matrix)
 	print("oi aux")
-	
