@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+import os, sys
 import numpy as np 
 from pdb import set_trace
 import math
@@ -18,13 +20,12 @@ def verify_method(matrix):
 		return 2 #continua PL Auxiliar
 
 def main():
-
-	f = open('teste/teste1.txt', 'r')
+	f = open('teste/teste6.txt', 'r')
 
 	lines = int(f.readline()) + 1
 	columns = int(f.readline()) + 1 
 	matrix_str = f.readline()
-	matrix = np.array(np.mat(matrix_str).reshape(lines,columns))
+	matrix = np.array(np.mat(matrix_str).reshape(lines,columns),dtype=float)
 
 	#exemplo simplex primal
 	#matrix = np.array([[3,2,4,0],[1,1,2,4],[2,0,3,5],[2,1,3,7]],dtype=float)
@@ -51,7 +52,7 @@ def main():
 
 	print("\nMatriz inicial:\n")
 	print(matrix)
-
+	matrix = matrix.astype('object')
 	method = verify_method(matrix)
 
 	if(method == 0):

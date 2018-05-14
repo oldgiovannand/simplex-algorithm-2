@@ -12,8 +12,7 @@ def transform_b_positive(matrix):
 			matrix[index,:] = (-1)*matrix[index,:] 
 	return matrix
 
-def zero_vector_b(matrix):
-	matrix_A_lines = (matrix.shape[0]-1)
+def zero_vector_c(matrix):
 	matrix[0,:] = 0
 	return matrix
 
@@ -70,6 +69,7 @@ def primal_simplex_auxiliar_pl(matrix,base_columns,original_matrix):
 				print(matrix)
 				prepare_for_primal_simplex(matrix,original_matrix,base_columns)
 			else:
+				#TODO formatar funcao de saida
 				print("inviavel")
 				print(matrix)
 				print("0")
@@ -91,7 +91,7 @@ def solve(matrix):
 	print(matrix)
 
 	print("VETOR C ZERADO")
-	matrix = zero_vector_b(matrix)
+	matrix = zero_vector_c(matrix)
 	print(matrix)
 
 	print("forma de tableux")
@@ -112,10 +112,11 @@ def solve(matrix):
 	end_c = matrix.shape[1]-matrix.shape[0]
 	for index in range(1,(matrix.shape[0])):
 		base_columns[index] = end_c
-		end_c = end_c+1;
+		end_c = end_c+1
 
 
 	matrix = put_canonical_form(matrix,base_columns)
 	print(matrix)
 	primal_simplex_auxiliar_pl(matrix,base_columns,original_matrix)
-	print("olar")
+	print("oi aux")
+	

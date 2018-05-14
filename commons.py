@@ -1,5 +1,8 @@
 import numpy as np
+from fractions import Fraction
+from decimal import Decimal
 
+from pdb import set_trace	
 
 def put_identity_matrix(matrix, position, size,value):
 	adicional_row = np.zeros(size)
@@ -30,13 +33,22 @@ def put_pl_form(matrix):
 	matrix[0,begin_C_columns:end_C_columns] = (-1)*matrix[0,begin_C_columns:end_C_columns] 
 
 def pivoting(matrix, line_index, column_index):
-	for index in range(0,matrix.shape[0]):
+	#set_trace()
+	factor_line = (matrix[line_index,:]).copy()
+	for index in range(0,matrix.shape[0]):#linha
+		factor = Fraction( Fraction( (-matrix[index,column_index])),Fraction( (factor_line[column_index]))).limit_denominator(1000000)
+		
 		if index == line_index:
-			matrix[index,:] = matrix[index,:]/matrix[line_index,column_index]
+			for column in range(0,matrix.shape[1]):
+				matrix[index,column] = Fraction(Fraction((matrix[index,column]))  , Fraction((factor_line[column_index]))).limit_denominator(1000000)
+			
 		else:
-			matrix[index,:] = matrix[line_index,:]*( (-matrix[index,column_index])/matrix[line_index,column_index])+matrix[index,:]	
+			for column in range(0,matrix.shape[1]):#coluna
+				matrix[index,column] = Fraction( (factor_line[column]*factor)+ matrix[index,column]	).limit_denominator(1000000)
 	print("pivoting")
-	print(matrix)
+
+	print(np.around(np.array(matrix,dtype=float), decimals=5)   )
+	#print(matrix)
 
 	# conteudo = []
 	# conteudo.append("2"+'\n')
@@ -63,7 +75,7 @@ def canonical_form(matrix,base_columns):
 		put_canonical_form(matrix,base_columns)
 
 def verify_canonical_form(matrix,base_columns):
-	pl_canonical_form = False; 
+	pl_canonical_form = False
 
 	begin_A_columns = matrix.shape[0]-1
 	for index in range(begin_A_columns,matrix.shape[1]):
@@ -88,11 +100,11 @@ def verify_canonical_form(matrix,base_columns):
 		return False
 		#verifica se está em forma canonica
 	
-	return pl_canonical_form;
+	return pl_canonical_form
 
 def put_canonical_form(matrix,base_columns):
 
-	end_identity_columns = matrix.shape[1]-1
+	#end_identity_columns = matrix.shape[1]-1
 
 
 	for linha in range(1 , base_columns.shape[0]):

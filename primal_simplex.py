@@ -13,7 +13,7 @@ def find_c_negative(matrix):
 	return None
 
 def find_pivot_primal_simplex(matrix,c_index): #TRATAR O CASO EM QUE O MENOS INDICE È ZERO - REGRA DE BLAND
-	min_value = math.inf
+	min_value = 100000000
 	min_index = None
 
 	for index in range(1, matrix.shape[0]):
@@ -50,27 +50,30 @@ def unlimited_certificate(matrix,c_index,base_columns):
 	f = open('conclusao.txt', 'w')
 	f.writelines(conteudo)
 	f.close()
-	#print("1")
-	#print(certificate.tolist())
-	
+	print("1")
+	print(np.around( np.array(certificate,dtype=float), decimals=6)  )
 
 
 def print_optimal_situation(matrix,base_columns):
-	
 	#calcula solução 
 	begin_A_columns = matrix.shape[0]-1
-	solution = np.zeros(matrix.shape[1] - (begin_A_columns+1))
+	solution = (np.zeros(matrix.shape[1] - (begin_A_columns))).astype('object')
 	for index in range(1,len(base_columns)): #percorre quantidade de linhas 
 		solution[(int(base_columns[index])-begin_A_columns)] = matrix[index,matrix.shape[1]-1]
 	
-	conteudo = []
-	conteudo.append("2"+'\n')
-	conteudo.append(str(solution)+'\n')
-	conteudo.append(str((matrix[0,-1]).tolist())+'\n')
-	conteudo.append(str((matrix[0,0:(matrix.shape[0]-1)]).tolist()))
-	f = open('conclusao.txt', 'w')
-	f.writelines(conteudo)
-	f.close()
+
+	print("2")
+	print(np.around(np.array(solution[0:-(matrix.shape[0])],dtype=float), decimals=5)   )
+	print( np.around(float(matrix[0,-1]) , decimals=5))
+	print(np.around( np.array(matrix[0,0:(matrix.shape[0]-1)],dtype=float), decimals=6)  )
+	#conteudo = []
+	#conteudo.append("2"+'\n')
+	#conteudo.append(str(solution)+'\n')
+	#conteudo.append(str((matrix[0,-1]).tolist())+'\n')
+	#conteudo.append(str((matrix[0,0:(matrix.shape[0]-1)]).tolist()))
+	#f = open('conclusao.txt', 'w')
+	#f.writelines(conteudo)
+	#f.close()
 
 	#print("2")
 	#print(solution)
@@ -78,6 +81,8 @@ def print_optimal_situation(matrix,base_columns):
 	#print((matrix[0,0:(matrix.shape[0]-1)]).tolist())
 
 def primal_simplex(matrix,base_columns):
+	print(" iteracao")
+	print(matrix)
 	c_index = find_c_negative(matrix) 
 	ilimit = 0
 	if (c_index is not None): #ainda temos entradas de (-c) no tableux negativas
@@ -93,12 +98,13 @@ def primal_simplex(matrix,base_columns):
 	if(ilimit != 1):
 		state = verify_state_primal(matrix)
 		if(state): #situacao de ótimo	
-			print_optimal_situation(matrix,base_columns)
+			print_optimal_situation(matrix,base_columns) 
 			return
 		elif(state is None):
 			#executar simples dual
 			pass	
 		else:
+			#set_trace()
 			primal_simplex(matrix,base_columns)
 
 
@@ -109,3 +115,5 @@ def solve(matrix):
 	base_columns = np.zeros(matrix.shape[0])
 	canonical_form(matrix,base_columns)
 	primal_simplex(matrix,base_columns)
+	print("oi primal")
+	
