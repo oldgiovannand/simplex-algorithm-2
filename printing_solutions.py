@@ -11,15 +11,13 @@ def unlimited_certificate(matrix,c_index,base_columns):
 		certificate[(int(base_columns[index])-begin_A_columns)] = -matrix[index,c_index]
 	certificate[c_index-begin_A_columns] = 1
 	
-	
 	conteudo = []
 	conteudo.append("1"+'\n')
-	conteudo.append(str((certificate).tolist()))
+	conteudo.append(str((np.around( np.array(certificate,dtype=float), decimals=6).tolist() )))
 	f = open('conclusao.txt', 'w')
 	f.writelines(conteudo)
 	f.close()
-	print("1")
-	print(np.around( np.array(certificate,dtype=float), decimals=6)  )
+    
 
 
 def optimal_situation(matrix,base_columns):
@@ -28,13 +26,7 @@ def optimal_situation(matrix,base_columns):
 	solution = (np.zeros(matrix.shape[1] - (begin_A_columns))).astype('object')
 	for index in range(1,len(base_columns)): #percorre quantidade de linhas 
 		solution[(int(base_columns[index])-begin_A_columns)] = matrix[index,matrix.shape[1]-1]
-	
 
-	print("2")
-	print(np.around(np.array(solution[0:-(matrix.shape[0])],dtype=float), decimals=5)   )
-	print( np.around(float(matrix[0,-1]) , decimals=5))
-	print(np.around( np.array(matrix[0,0:(matrix.shape[0]-1)],dtype=float), decimals=6)  )
-	
 	conteudo = []
 	conteudo.append("2"+'\n')
 	conteudo.append(str(np.around(np.array(solution[0:-(matrix.shape[0])],dtype=float), decimals=5).tolist())+'\n')
@@ -46,13 +38,12 @@ def optimal_situation(matrix,base_columns):
 
 def non_viability_certificate(matrix,base_columns):
 	
-	conteudo = []
-	conteudo.append("0"+'\n')
-	conteudo.append(str((matrix[0,0:(matrix.shape[0]-1)]).tolist()))
-	f = open('conclusao.txt', 'w')
-	f.writelines(conteudo)
-	f.close()
-	#print("0")
-	#print((matrix[0,0:(matrix.shape[0]-1)]).tolist())
+    conteudo = []
+    conteudo.append("0"+'\n')
+    conteudo.append(str((np.around(np.array((matrix[0,0:(matrix.shape[0]-1)]) ,dtype=float), decimals=5)).tolist()))
+    f = open('conclusao.txt', 'w')
+    f.writelines(conteudo)
+    f.close()
+
 
 

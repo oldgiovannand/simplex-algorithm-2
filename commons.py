@@ -30,7 +30,7 @@ def put_tableux_form(matrix):
 def pivoting(matrix, line_index, column_index):
 	
 	factor_line = (matrix[line_index,:]).copy()
-	for index in range(0,matrix.shape[0]):#linha
+	for index in range(0,matrix.shape[0]):#line
 		factor = Fraction( Fraction( (-matrix[index,column_index])),Fraction( (factor_line[column_index]))).limit_denominator(1000000)
 		
 		if index == line_index:
@@ -38,22 +38,8 @@ def pivoting(matrix, line_index, column_index):
 				matrix[index,column] = Fraction(Fraction((matrix[index,column]))  , Fraction((factor_line[column_index]))).limit_denominator(1000000)
 			
 		else:
-			for column in range(0,matrix.shape[1]):#coluna
+			for column in range(0,matrix.shape[1]):#column
 				matrix[index,column] = Fraction( (factor_line[column]*factor)+ matrix[index,column]	).limit_denominator(1000000)
-	print("pivoting")
-
-	print(np.around(np.array(matrix,dtype=float), decimals=5)   )
-	#print(matrix)
-
-	# conteudo = []
-	# conteudo.append("2"+'\n')
-	# conteudo.append(str(solution)+'\n')
-	# conteudo.append(str((matrix[0,-1]).tolist())+'\n')
-	# conteudo.append(str((matrix[0,0:(matrix.shape[0]-1)]).tolist()))
-	# f = open('conclusao.txt', 'w')
-	# f.writelines(conteudo)
-	# f.close()
-
 
 	f = open('primeiro.txt', 'r')
 	conteudo = f.readlines()
@@ -86,8 +72,7 @@ def verify_canonical_form(matrix,base_columns):
 					base = None
 					break
 		if(base is not None and count_ones == 1):
-			base_columns[base] = index #para a base da linha 'base', meu pivo encontra-se na coluna base_columns[base]
-
+			base_columns[base] = index #to the base line of the 'base' line, my pivo is in the column base_columns [base]
 	if(all( i >0 for i in base_columns)):
 		return True
 	else:
@@ -95,8 +80,6 @@ def verify_canonical_form(matrix,base_columns):
 
 def put_canonical_form(matrix,base_columns):
 
-	#end_identity_columns = matrix.shape[1]-1
 	for linha in range(1 , base_columns.shape[0]):
-	#para cada linha, pivoteia a coluna 
 		matrix[0,:] = matrix[linha,:]*( (-matrix[0,int(base_columns[linha])])/matrix[linha,int(base_columns[linha])])+matrix[0,:]	
 	return matrix
